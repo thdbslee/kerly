@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap >
+    <typeAlias  alias="userVO"       type = "egovframework.shop.login.userVO"/>
+	
+	<select id="logDAO.userLogin" parameterClass="userVO" resultClass="userVO">
+	/*logDAO.userLogin*/
+	SELECT 
+		INX
+		,USER_ID
+		,USER_PHONE
+		,USER_PASSWD
+		,USER_ADDRESS
+		,AUTHCODE
+		,USER_NAME
+		,ADR
+		,DEADR
+	FROM USER
+	WHERE USER_ID = #USER_ID# AND USER_PASSWD = #USER_PASSWD#
+	</select>
+	<select id="logDAO.idCount" parameterClass="userVO" resultClass="java.lang.Integer">
+	/*loginDAO.idCount*/
+	SELECT COUNT(*) ID_COUNT FROM USER WHERE USER_ID = #USER_ID#
+	</select>
+	<update id="logDAO.joinInsert" parameterClass="userVO">
+	/*logDAO.joinInsert*/
+	INSERT INTO USER
+	(
+	  USER_ID
+	  ,USER_PASSWD
+	  ,USER_PHONE
+	  ,USER_ADDRESS
+	  ,AUTHCODE
+	  ,USER_NAME
+	 
+	)
+	VALUES(
+	  #USER_ID#
+	 ,#USER_PASSWD#
+	 ,#USER_PHONE#
+	 ,#USER_ADDRESS#
+	 ,'1'
+	 ,#USER_NAME#
+	
+	)
+	</update>
+    <select id="logDAO.userPassCount" parameterClass="userVO" resultClass="java.lang.Integer">
+    /*logDAO.userPassCount*/
+    SELECT COUNT(*) AS COUNT FROM USER 
+    WHERE USER_PASSWD = #USER_PASSWD#
+    AND USER_ID = #USER_ID#
+    </select>
+    <update id="logDAO.userInfoUpdate" parameterClass="userVO" >
+    /*logDAO.userInfoUpdate*/
+    	UPDATE USER
+    	SET 
+	    	USER_NAME = #USER_NAME#
+	    	,USER_PHONE = #USER_PHONE#
+	    	,USER_ADDRESS = #USER_ADDRESS#
+	    	,ADR = #ADR#
+	    	,DEADR = #DEADR#
+	    WHERE USER_ID = #USER_ID#
+    	
+    </update>
+</sqlMap>

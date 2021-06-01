@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap >
+    <typeAlias  alias="cartVO"       type = "egovframework.shop.cart.cartVO"/>
+	<typeAlias  alias="shop" type="egovframework.sho.category.shopVO"/>
+	
+	<update id="cartDAO.cartInsert" parameterClass="cartVO">
+	/*cartDAO.cartInsert*/
+	INSERT INTO CART(
+		P_INX
+		,AMOUNT
+		,USER_ID
+		,PRICE
+	)VALUES(
+		#P_INX#
+		,#AMOUNT#
+		,#USER_ID#
+		,#PRICE#
+	)
+	</update>
+	<select id="cartDAO.cartList" parameterClass="cartVO" resultClass="cartVO"  >
+	/*cartDAO.cartList*/
+	SELECT A.* FROM(
+		SELECT C.C_INX,C.P_INX, C.AMOUNT,S.P_NAME,S.IMG_1,C.USER_ID,S.PRICE
+		FROM CART C,SHOP S, USER U 
+		WHERE  C.P_INX = S.INX
+		AND C.USER_ID = U.USER_ID
+	) A 
+	WHERE USER_ID = #USER_ID#
+	</select>
+	<!-- 결제페이지 이동 -->
+	<select id="cartDAO.payList" parameterClass="cartVO" resultClass="cartVO">
+	/*cartDAO.payList*/
+	SELECT A.* FROM(
+		SELECT C.C_INX,C.P_INX,C.AMOUNT,C.USER_ID
+			,S.P_NAME,S.PRICE,S.IMG_1
+		FROM CART C, SHOP S 
+		WHERE C.P_INX = S.INX
+	)A 
+	<dynamic prepend="WHERE">
+		<isNotEmpty property="USER_ID" prepend="AND">
+			USER_ID =#USER_ID# 
+		</isNotEmpty>
+
+			<iterate prepend="IN" property="C_INXS" open="(" close=")" conjunction=",">
+				C_INXS = #C_INXS#
+			</iterate>
+		
+	</dynamic>
+	</select>
+	<select id="cartDAO.cartCount" parameterClass="cartVO" resultClass="java.lang.Integer">
+	/*cartDAO.cartCount*/
+	SELECT COUNT(*) COUNT FROM CART
+	WHERE P_INX = #P_INX#
+	AND USER_ID = #USER_ID#
+	</select>
+	<update id="cartDAO.cartUpdate" parameterClass="cartVO">
+	/*cartDAO.cartUpdate*/
+		UPDATE CART SET
+			AMOUNT = AMOUNT + #AMOUNT#
+		WHERE P_INX = #P_INX# 
+		AND USER_ID =#USER_ID#
+	</update>
+	<select id="cartDAO.cartTotalPrice" parameterClass="cartVO" resultClass="java.lang.Integer">
+	/*cartDAO.cartTotalPrice*/
+		SELECT IFNULL(SUM(C.AMOUNT * C.PRICE),0) AS TOTAL FROM CART C, SHOP S
+		WHERE C.P_INX = S.INX 
+		AND C.USER_ID = #USER_ID#
+	</select>
+	<update id="cartDAO.cartPlus" parameterClass="cartVO">
+	/*cartDAO.cartPlus*/
+	UPDATE CART SET
+	 AMOUNT = #AMOUNT# +1
+	WHERE P_INX = #P_INX#
+	AND USER_ID = #USER_ID#
+	</update>
+	<update id="cartDAO.cartMinus" parameterClass="cartVO">
+	/*cartDAO.cartMinus*/
+	UPDATE CART SET
+		AMOUNT = #AMOUNT# -1
+	WHERE P_INX = #P_INX# AND USER_ID = #USER_ID#
+	</update>
+	<update id="cartDAO.cartAmountUpdate" parameterClass="cartVO">
+	/*cartDAO.cartAmountUpdate*/
+		UPDATE CART SET
+			AMOUNT = #AMOUNT#
+		WHERE P_INX = #P_INX# AND USER_ID = #USER_ID#
+	</update>
+	<delete id="cartDAO.cartDelete" parameterClass="cartVO">
+	/*cartDAO.cartDelete*/
+		DELETE FROM CART
+		WHERE C_INX 
+		<iterate prepend="IN" open="(" close=")" conjunction ="," property="C_INXS">
+			#C_INXS[]#
+		</iterate>
+	</delete>
+</sqlMap>

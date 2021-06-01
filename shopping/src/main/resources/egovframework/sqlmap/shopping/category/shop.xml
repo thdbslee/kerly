@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap >
+    <typeAlias  alias="shopVO"       type = "egovframework.shop.category.shopVO"/>
+	<typeAlias alias="menuVO" type="egovframework.shop.category.menuVO"/>
+	
+	<select id="shopDAO.menuList" parameterClass="menuVO" resultClass="menuVO">
+	/*shopDAO.menuList*/
+		SELECT INX,CATE_NAME FROM MENU
+	</select>
+	<select id="shopDAO.shopList" parameterClass="shopVO" resultClass="shopVO">
+	/*shopDAO.shopList*/
+	SELECT 
+	INX
+	,P_NAME
+	,PRICE
+	,INFO
+	,(
+		CASE WHEN CATEGORY='1' THEN '과일'
+		WHEN CATEGORY='2' THEN '채소'
+		WHEN CATEGORY ='3' THEN '정육/계란'
+		WHEN CATEGORY ='4' THEN '수산/건어물'
+		END
+	)AS CATEGORY
+	,    CASE WHEN  LENGTH(CONTENT)> 100 THEN '...' END CONTENT
+	,IMG_1
+	FROM SHOP 
+	<dynamic prepend ="WHERE">
+		<isNotEmpty property="category" prepend="AND">
+			CATEGORY  = #category#
+		</isNotEmpty>
+		<isNotEmpty property="searchKeyword" prepend="AND">
+			P_NAME LIKE CONCAT('%',#searchKeyword#,'%')
+		</isNotEmpty>
+	</dynamic>
+	ORDER BY REG_DATE DESC
+	LIMIT #recordCountPerPage#  OFFSET #firstIndex#		
+	</select>
+    <update id="shopDAO.productInsert" parameterClass="shopVO">
+    /*shopDAO.productInsert*/
+    INSERT INTO SHOP
+    (
+    	P_NAME
+    	,PRICE
+    	,CATEGORY
+    	,COLOR
+    	,P_SIZE
+    	,CONTENT
+    	,IMG_1
+    	,USER_ID
+    	,REG_DATE
+    )VALUES(
+        #p_name#
+    	, #price#
+    	, #category#
+    	, #color#
+    	, #p_size#
+    	, #content#
+    	, #IMG_1#
+    	, #USER_ID#
+    	,DATE_FORMAT(now(),'%Y-%m-%d-%H:%i:%s')
+    )
+    </update>
+    <select id="shopDAO.productSelect" parameterClass="shopVO" resultClass="shopVO">
+    /*shopDAO.productSelect*/
+   	SELECT 
+	INX
+	,P_NAME
+	,PRICE
+	,INFO
+	,(
+		CASE WHEN CATEGORY='1' THEN '과일'
+		WHEN CATEGORY='2' THEN '채소'
+		WHEN CATEGORY ='3' THEN '정육/계란'
+		WHEN CATEGORY ='4' THEN '수산/건어물'
+		END
+	)AS CATEGORY
+	, COLOR
+	, P_SIZE
+	,  CONTENT
+	,IMG_1
+	FROM SHOP WHERE INX = #INX#
+    </select>
+    <select id="shopDAO.commenTotCnt" parameterClass="shopVO" resultClass="java.lang.Integer">
+    /*shopDAO.commenTotCnt*/
+    SELECT COUNT(*) FROM SHOP
+    </select>
+    
+    <update id="shopDAO.productDelete" parameterClass="shopVO">
+
+		DELETE FROM SHOP
+		WHERE INX 
+		<iterate prepend="IN" open="(" close=")" conjunction ="," property="INXS">
+			#INXS[]#
+		</iterate>
+	</update>
+	<update id="shopDAO.productUpdate" parameterClass="shopVO" >
+	/*shopDAO.productUpdate*/
+	UPDATE SHOP SET 
+		P_NAME = #p_name#
+		,PRICE = #price# 
+		,CATEGORY = #category#
+		,COLOR = #color#
+		,P_SIZE = #p_size#
+		,IMG_1 = #IMG_1# 
+		,CONTENT = #content#
+		,USER_ID = #USER_ID#
+	WHERE INX = #INX#
+	</update>
+</sqlMap>
